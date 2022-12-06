@@ -9,7 +9,33 @@ def get_restaurant_data(db_filename):
     dictionaries. The key:value pairs should be the name, category, building, and rating
     of each restaurant in the database.
     """
-    pass
+    conn = sqlite3.connect(db_filename)
+    cur = conn.cursor()
+    
+    cur.execute(
+        """
+        SELECT restaurants.name, categories.category, buildings.building, restaurants.rating FROM restaurants
+        JOIN categories ON categories.id = restaurants.category_id
+        JOIN buildings ON buildings.id = restaurants.building_id
+        """
+    )
+    restaurant_list = cur.fetchall()
+    conn.commit()
+
+    restaurants = []
+    for restaurant in restaurant_list:
+        temp = {}
+        name = restaurant[1]
+        temp['name'] = restaurant[0]
+        temp['category'] = restaurant[1]
+        temp['building'] = restaurant[2]
+        temp['rating'] = restaurant[3]
+
+        restaurants.append(temp)
+    
+    return restaurants
+
+
 
 def barchart_restaurant_categories(db_filename):
     """
@@ -17,7 +43,33 @@ def barchart_restaurant_categories(db_filename):
     restaurant categories and the values should be the number of restaurants in each category. The function should
     also create a bar chart with restaurant categories and the counts of each category.
     """
-    pass
+    conn = sqlite3.connect(db_filename)
+    cur = conn.cursor()
+    
+    cur.execute(
+        """
+        SELECT category, COUNT (category_id) FROM restaurants
+        JOIN categories ON restaurants.category_id = categories.id
+        GROUP BY category_id
+       
+        """
+    )
+    restaurant_list = cur.fetchall()
+    conn.commit()
+
+    restaurant_categories = {}
+    for restaurant in restaurant_list:
+        restaurant_categories[restaurant[0]] = restaurant[1]
+ 
+    plt.barh((list(restaurant_categories.keys())), (list(restaurant_categories.values())))
+    plt.title("Types of Restaurants in South U")
+    plt.ylabel("Restaurant Types")
+    plt.xlabel("Number of Restaurants")
+    plt.tight_layout()
+    plt.show()
+
+    return restaurant_categories
+
 
 #EXTRA CREDIT
 def highest_rated_category(db_filename):#Do this through DB as well
@@ -31,7 +83,7 @@ def highest_rated_category(db_filename):#Do this through DB as well
 
 #Try calling your functions here
 def main():
-    pass
+    get_restaurant_data('South_U_Restaurants.db')
 
 class TestHW8(unittest.TestCase):
     def setUp(self):
