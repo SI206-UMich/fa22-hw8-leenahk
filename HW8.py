@@ -35,8 +35,6 @@ def get_restaurant_data(db_filename):
     
     return restaurants
 
-
-
 def barchart_restaurant_categories(db_filename):
     """
     This function accepts a file name of a database as a parameter and returns a dictionary. The keys should be the
@@ -60,8 +58,10 @@ def barchart_restaurant_categories(db_filename):
     restaurant_categories = {}
     for restaurant in restaurant_list:
         restaurant_categories[restaurant[0]] = restaurant[1]
- 
-    plt.barh((list(restaurant_categories.keys())), (list(restaurant_categories.values())))
+
+    sorted_categories = dict(sorted(restaurant_categories.items(), key=lambda x: x[1], reverse=True))
+    
+    plt.barh((list(sorted_categories.keys())), (list(sorted_categories.values())))
     plt.title("Types of Restaurants in South U")
     plt.ylabel("Restaurant Types")
     plt.xlabel("Number of Restaurants")
@@ -79,7 +79,19 @@ def highest_rated_category(db_filename):#Do this through DB as well
     in that category. This function should also create a bar chart that displays the categories along the y-axis
     and their ratings along the x-axis in descending order (by rating).
     """
-    pass
+    conn = sqlite3.connect(db_filename)
+    cur = conn.cursor()
+    
+    cur.execute(
+        """
+        SELECT category, AVG (category_id) FROM restaurants
+        JOIN categories ON restaurants.category_id = categories.id
+        GROUP BY category_id
+       
+        """
+    )
+    ratings_list = cur.fetchall()
+    conn.commit()
 
 #Try calling your functions here
 def main():
