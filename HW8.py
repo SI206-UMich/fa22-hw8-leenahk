@@ -25,7 +25,6 @@ def get_restaurant_data(db_filename):
     restaurants = []
     for restaurant in restaurant_list:
         temp = {}
-        name = restaurant[1]
         temp['name'] = restaurant[0]
         temp['category'] = restaurant[1]
         temp['building'] = restaurant[2]
