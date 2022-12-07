@@ -59,14 +59,13 @@ def barchart_restaurant_categories(db_filename):
     for restaurant in restaurant_list:
         restaurant_categories[restaurant[0]] = restaurant[1]
 
-    sorted_categories = dict(sorted(restaurant_categories.items(), key=lambda x: x[1], reverse=True))
+    sorted_categories = dict(sorted(restaurant_categories.items(), key=lambda x: x[1]))
     
     plt.barh((list(sorted_categories.keys())), (list(sorted_categories.values())))
-    plt.title("Types of Restaurants in South U")
-    plt.ylabel("Restaurant Types")
+    plt.title("Number of Restuarants per Category in South U")
+    plt.ylabel("Restaurant Category")
     plt.xlabel("Number of Restaurants")
     plt.tight_layout()
-    plt.show()
 
     return restaurant_categories
 
@@ -84,18 +83,49 @@ def highest_rated_category(db_filename):#Do this through DB as well
     
     cur.execute(
         """
-        SELECT category, AVG (category_id) FROM restaurants
+        SELECT categories.category, ROUND(AVG(restaurants.rating), 1) FROM restaurants
         JOIN categories ON restaurants.category_id = categories.id
-        GROUP BY category_id
+        GROUP BY category
        
         """
     )
+
     ratings_list = cur.fetchall()
-    conn.commit()
+    conn.commit()    
+    
+    highest_category = ''
+    highest_rating = 0
+    for rating in ratings_list:
+        if rating[1] > highest_rating:
+            highest_category = rating[0]
+            highest_rating = rating[1]
+    
+    category_ratings = {}
+    for restaurant in ratings_list:
+        category_ratings[restaurant[0]] = restaurant[1]
+
+
+    sorted_ratings = dict(sorted(category_ratings.items(), key=lambda x: x[1]))
+    
+    plt.barh((list(sorted_ratings.keys())), (list(sorted_ratings.values())))
+    plt.title("Average Ratings of Restaurant Categories in South U")
+    plt.ylabel("Restaurant Category")
+    plt.xlabel("Average Restaurant Rating")
+    plt.tight_layout()
+
+    return (highest_category, highest_rating)
+
+  
 
 #Try calling your functions here
 def main():
+    pass
     get_restaurant_data('South_U_Restaurants.db')
+    barchart_restaurant_categories('South_U_Restaurants.db')
+    plt.show()
+    highest_rated_category('South_U_Restaurants.db')
+    plt.show()
+
 
 class TestHW8(unittest.TestCase):
     def setUp(self):
